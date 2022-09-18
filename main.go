@@ -1,17 +1,17 @@
 package main
 
 import (
-	"fmt"
 	"gee"
 	"net/http"
 )
 
 func main() {
 	r := gee.New()
-
-	r.GET("/hello", func(w http.ResponseWriter, req *http.Request) {
-		fmt.Fprintf(w, "hello world")
+	r.GET("/", func(ctx *gee.Context) {
+		ctx.JSON(http.StatusOK, gee.H{
+			"status": 1,
+			"msg":    "welcome",
+		})
 	})
-
-	r.Run(":9090")
+	r.Run(":8080")
 }

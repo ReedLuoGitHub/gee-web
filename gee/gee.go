@@ -31,13 +31,13 @@ type Engine struct {
 }
 
 func New() *Engine {
-	return &Engine{router: newRoute()}
+	return &Engine{router: newRouter()}
 }
 
 // ServeHTTP 从router中拿到指定的handler进行处理
 func (e Engine) ServeHTTP(w http.ResponseWriter, req *http.Request) {
-	c := newContext(w, req)
-	e.router.handler(c)
+	ctx := newContext(w, req)
+	e.router.handle(ctx)
 }
 
 func (e Engine) Run(address string) {
@@ -48,6 +48,7 @@ func (e Engine) Run(address string) {
 }
 
 func (e Engine) addRoute(method, pattern string, handler HandlerFunc) {
+	log.Printf("Route %6s- %s", method, pattern)
 	e.router.addRoute(method, pattern, handler)
 }
 

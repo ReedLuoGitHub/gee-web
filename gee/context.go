@@ -8,10 +8,15 @@ import (
 )
 
 type Context struct {
-	Writer     http.ResponseWriter
-	Req        *http.Request
-	Path       string
-	Method     string
+	Writer http.ResponseWriter
+	Req    *http.Request
+
+	// request
+	Path   string
+	Method string
+	Params map[string]string
+
+	// response
 	StatusCode int
 }
 
@@ -22,6 +27,11 @@ func newContext(w http.ResponseWriter, req *http.Request) *Context {
 		Path:   req.URL.Path,
 		Method: req.Method,
 	}
+}
+
+func (ctx *Context) Param(key string) string {
+	val, _ := ctx.Params[key]
+	return val
 }
 
 func (ctx *Context) PostForm(key string) string {
@@ -44,7 +54,7 @@ func (ctx *Context) SetHeader(key string, val string) {
 func (ctx *Context) String(code int, format string, values ...interface{}) {
 	ctx.SetHeader("Content-Type", "application/json")
 	ctx.Status(code)
-	_, err := ctx.Writer.Write([]byte(fmt.Sprintf(format, values)))
+	_, err := ctx.Writer.Write([]byte(fmt.Sprintf(format, values...)))
 	if err != nil {
 		log.Println("response error: ", err)
 	}

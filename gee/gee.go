@@ -28,10 +28,19 @@ func NormalPrint(info string) string {
 
 type Engine struct {
 	router *router
+
+	*RouterGroup                // engine拥有Group的所有功能
+	groups       []*RouterGroup // 所有的分组信息
 }
 
 func New() *Engine {
-	return &Engine{router: newRouter()}
+	engine := &Engine{
+		router: newRouter(),
+	}
+	engine.RouterGroup = &RouterGroup{engine: engine}
+	engine.groups = []*RouterGroup{engine.RouterGroup}
+
+	return engine
 }
 
 // ServeHTTP 从router中拿到指定的handler进行处理

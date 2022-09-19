@@ -1,9 +1,9 @@
 package gee
 
 import (
-	"fmt"
 	"log"
 	"net/http"
+	"strings"
 )
 
 type HandlerFunc func(*Context)
@@ -12,16 +12,6 @@ type H map[string]interface{}
 func init() {
 	log.SetPrefix("[gee] ")
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
-}
-
-/* output */
-
-func ErrPrint(info string) string {
-	return fmt.Sprintf("%c[%d;%d;%dm%s(xxxx)%c[0m ", 0x1B, 41, 38, 2, info, 0x1B)
-}
-
-func NormalPrint(info string) string {
-	return fmt.Sprintf(" %c[%d;%d;%dm%s(xxxx)%c[0m ", 0x1B, 42, 38, 5, info, 0x1B)
 }
 
 /* Engine */
@@ -43,9 +33,24 @@ func New() *Engine {
 	return engine
 }
 
+func Default() *Engine {
+	engine := New()
+	engine.Use(Logger())
+	return engine
+}
+
 // ServeHTTP 从router中拿到指定的handler进行处理
 func (e Engine) ServeHTTP(w http.ResponseWriter, req *http.Request) {
+	var middlewares []HandlerFunc
+	for _, group := range e.groups {
+		// 通过URL前缀判断该请求适用于哪些中间件
+		if strings.HasPrefix(req.URL.Path, group.prefix) {
+			middlewares = append(middlewares, group.middlewares...)
+		}
+	}
+
 	ctx := newContext(w, req)
+	ctx.handlers = middlewares
 	e.router.handle(ctx)
 }
 
@@ -54,29 +59,4 @@ func (e Engine) Run(address string) {
 	if err != nil {
 		log.Fatal("start web server error: ", err)
 	}
-}
-
-func (e Engine) addRoute(method, pattern string, handler HandlerFunc) {
-	log.Printf("Route %6s- %s", method, pattern)
-	e.router.addRoute(method, pattern, handler)
-}
-
-func (e Engine) GET(pattern string, handler HandlerFunc) {
-	e.addRoute("GET", pattern, handler)
-}
-
-func (e Engine) POST(pattern string, handler HandlerFunc) {
-	e.addRoute("POST", pattern, handler)
-}
-
-func (e Engine) DELETE(pattern string, handler HandlerFunc) {
-	e.addRoute("DELETE", pattern, handler)
-}
-
-func (e Engine) PUT(pattern string, handler HandlerFunc) {
-	e.addRoute("PUT", pattern, handler)
-}
-
-func (e Engine) PATCH(pattern string, handler HandlerFunc) {
-	e.addRoute("PATCH", pattern, handler)
 }

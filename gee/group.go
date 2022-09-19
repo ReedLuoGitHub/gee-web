@@ -48,3 +48,8 @@ func (g *RouterGroup) PUT(pattern string, handler HandlerFunc) {
 func (g *RouterGroup) PATCH(pattern string, handler HandlerFunc) {
 	g.addRoute("PATCH", pattern, handler)
 }
+
+// Use 给指定的分组添加中间件
+func (g *RouterGroup) Use(middlewares ...HandlerFunc) {
+	g.middlewares = append(g.middlewares, middlewares...)
+}

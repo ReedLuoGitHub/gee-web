@@ -78,11 +78,16 @@ func (r *router) handle(ctx *Context) {
 	if n != nil {
 		ctx.Params = params
 		key := fmt.Sprintf("%s-%s", ctx.Method, n.pattern)
-		r.handlers[key](ctx)
-		return
+
+		// 将当前handler添加到 ctx.handlers 的末尾
+		ctx.handlers = append(ctx.handlers, r.handlers[key])
+	} else {
+		ctx.handlers = append(ctx.handlers, func(c *Context) {
+			c.String(http.StatusNotFound, "404 NOT FOUND: %s", c.Path)
+		})
 	}
 
-	ctx.String(http.StatusNotFound, "404 NOT FOUND: %s\n", ctx.Path)
+	ctx.Next()
 }
 
 // parsePattern ...

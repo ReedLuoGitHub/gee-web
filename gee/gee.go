@@ -35,7 +35,7 @@ func New() *Engine {
 
 func Default() *Engine {
 	engine := New()
-	engine.Use(Logger())
+	engine.Use(Logger(), Recovery())
 	return engine
 }
 

@@ -34,6 +34,11 @@ func newContext(w http.ResponseWriter, req *http.Request) *Context {
 	}
 }
 
+func (ctx *Context) Fail(code int, err string) {
+	ctx.index = len(ctx.handlers)
+	ctx.JSON(code, H{"message": err})
+}
+
 // Next 执行下一个中间件
 func (ctx *Context) Next() {
 	ctx.index++

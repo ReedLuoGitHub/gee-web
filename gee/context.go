@@ -48,19 +48,6 @@ func (ctx *Context) Next() {
 	}
 }
 
-func (ctx *Context) Param(key string) string {
-	val, _ := ctx.Params[key]
-	return val
-}
-
-func (ctx *Context) PostForm(key string) string {
-	return ctx.Req.FormValue(key)
-}
-
-func (ctx *Context) Query(key string) string {
-	return ctx.Req.URL.Query().Get(key)
-}
-
 func (ctx *Context) Status(code int) {
 	ctx.StatusCode = code
 	ctx.Writer.WriteHeader(code)
@@ -103,4 +90,19 @@ func (ctx *Context) HTML(code int, html string) {
 	if err != nil {
 		log.Println("response error: ", err)
 	}
+}
+
+/* query */
+
+func (ctx *Context) Param(key string) string {
+	val, _ := ctx.Params[key]
+	return val
+}
+
+func (ctx *Context) PostForm(key string) string {
+	return ctx.Req.FormValue(key)
+}
+
+func (ctx *Context) Query(key string) string {
+	return ctx.Req.URL.Query().Get(key)
 }

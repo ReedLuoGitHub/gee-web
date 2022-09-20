@@ -54,8 +54,13 @@ func (e Engine) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	e.router.handle(ctx)
 }
 
-func (e Engine) Run(address string) {
-	err := http.ListenAndServe(address, e)
+func (e Engine) Run(address ...string) {
+	var err error
+	if len(address) == 0 {
+		err = http.ListenAndServe(":8080", e)
+	} else {
+		err = http.ListenAndServe(address[0], e)
+	}
 	if err != nil {
 		log.Fatal("start web server error: ", err)
 	}
